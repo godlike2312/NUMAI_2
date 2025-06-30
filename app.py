@@ -40,7 +40,6 @@ def initialize_firebase():
         
         # Try service account files in order of preference
         service_account_paths = [
-            'static/js/bot-ai-ind-firebase-adminsdk-fbsvc-108e169d30.json',
             'firebase-service-account.json'
         ]
         

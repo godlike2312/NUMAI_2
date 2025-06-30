@@ -1,6 +1,8 @@
 # Firebase service account keys
-static/js/bot-ai-ind-firebase-adminsdk-fbsvc-108e169d30.json
+*firebase-adminsdk*.json
 firebase-service-account.json
+*service-account*.json
+*serviceAccount*.json
 
 # Python cache files
 __pycache__/

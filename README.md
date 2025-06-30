@@ -40,7 +40,9 @@ The application requires the following environment variables to be set:
    python app.py
    ```
 
-## Deployment on Render
+## Deployment
+
+### Deployment on Render
 
 To deploy this application on Render:
 
@@ -48,6 +50,22 @@ To deploy this application on Render:
 2. Connect your repository
 3. Configure the following settings:
    - Build Command: `pip install -r requirements.txt`
+
+### Deployment on Vercel
+
+To deploy this application on Vercel:
+
+1. Push your code to GitHub (ensure no credentials are included)
+2. Connect your GitHub repository to Vercel
+3. Set the `FIREBASE_SERVICE_ACCOUNT` environment variable in the Vercel project settings
+4. Deploy the project
+
+## Security Notes
+
+- The `.gitignore` file is configured to exclude Firebase service account files
+- Always use environment variables for sensitive credentials in production
+- The placeholder `firebase-service-account.json` file in the repository does not contain real credentials
+- Never commit actual Firebase service account credentials to the repository
    - Start Command: `gunicorn app:app`
 4. Add the required environment variables in the Render dashboard:
    - Go to your Web Service → Environment
