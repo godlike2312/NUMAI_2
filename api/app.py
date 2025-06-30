@@ -40,7 +40,7 @@ def initialize_firebase():
         
         # Try service account files in order of preference
         service_account_paths = [
-            'static/js/bot-ai-ind-firebase-adminsdk-fbsvc-108e169d30.json',
+            '../static/js/bot-ai-ind-firebase-adminsdk-fbsvc-108e169d30.json',  # Updated path for Vercel
             'firebase-service-account.json'
         ]
         
@@ -90,11 +90,11 @@ firebase_init_success = initialize_firebase()
 print(f"Firebase initialization {'successful' if firebase_init_success else 'FAILED'}")
 
 # Create Flask app after Firebase initialization
-app = Flask(__name__)
+app = Flask(__name__, static_folder='./static', template_folder='./templates')  # Updated paths for Vercel with symbolic links
 app.secret_key = secrets.token_hex(16)  # Generate a secure secret key for sessions
 
 # OpenRouter API key - read from environment variable with fallback for development
-API_KEY = os.environ.get('OPENROUTER_API_KEY', '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')
+API_KEY = os.environ.get('OPENROUTER_API_KEY', '')
 
 # Check if API key is not set in environment
 if not API_KEY and app.debug:
@@ -127,7 +127,7 @@ def get_openrouter_headers(request_obj=None, additional_headers=None):
     if request_obj:
         origin = request_obj.headers.get('Origin')
         referer = request_obj.headers.get('Referer')
-        headers["HTTP-Referer"] = origin or referer or "https://numai.onrender.com"
+        headers["HTTP-Referer"] = origin or referer or "https://numai.vercel.app"  # Updated for Vercel
         headers["X-Title"] = "NumAI"
     
     # Add any additional headers
@@ -567,13 +567,8 @@ def api_status():
             'server_time': time.strftime('%Y-%m-%d %H:%M:%S')
         }), 500
 
-if __name__ == '__main__':
-    # Set longer timeout for Gunicorn workers when running in production
-    # This helps prevent worker timeouts when API requests take longer
-    if os.environ.get('GUNICORN_TIMEOUT'):
-        print(f"Using configured Gunicorn timeout: {os.environ.get('GUNICORN_TIMEOUT')}")
-    else:
-        os.environ['GUNICORN_TIMEOUT'] = '120'  # 2 minutes timeout
-        print(f"Set Gunicorn timeout to: {os.environ.get('GUNICORN_TIMEOUT')}")
-    
-    app.run(debug=True)
+# Set environment variables for Vercel deployment
+if os.environ.get('VERCEL_ENV'):
+    print(f"Running in Vercel environment: {os.environ.get('VERCEL_ENV')}")
+    # Disable debug mode in production
+    app.debug = False
