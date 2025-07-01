@@ -277,7 +277,7 @@ if (googleBtn) {
                 
                 // Reset button state
                 googleBtn.disabled = false;
-                googleBtn.innerHTML = `<img src="/static/img/google-icon.svg" alt="Google"> Sign ${window.location.pathname === '/login' ? 'in' : 'up'} with Google`;
+                googleBtn.innerHTML = `<img src="${window.location.origin}/static/img/google-icon.svg" alt="Google"> Sign ${window.location.pathname === '/login' ? 'in' : 'up'} with Google`;
             });
     });
 }

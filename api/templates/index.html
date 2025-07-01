@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NumAI - Chat Interface</title>
-    <link rel="icon" href="/static/img/logo.svg" type="image/svg+xml">
+    <link rel="icon" href="{{ url_for('static', filename='img/logo.svg') }}" type="image/svg+xml">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/static/css/style.css">
-    <link rel="stylesheet" href="/static/css/chat-menu.css">
-    <link rel="stylesheet" href="/static/css/settings.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/chat-menu.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/settings.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -20,17 +20,17 @@
         <div class="sidebar">
             <div class="sidebar-header">
                 <div class="logo">
-                    <img src="/static/img/logo.svg" alt="NumAI Logo" class="logo-image">
+                    <img src="{{ url_for('static', filename='img/logo.svg') }}" alt="NumAI Logo" class="logo-image">
                     <h1 class="robotic-font">NumAI</h1>
                 </div>
             </div>
             <div class="sidebar-toggle-container">
                 <div class="sidebar-toggle">
-                    <img src="/static/img/sidebar-icon.svg" alt="Toggle Sidebar">
+                    <img src="{{ url_for('static', filename='img/sidebar-icon.svg') }}" alt="Toggle Sidebar">
                 </div>
             </div>
             <div class="new-chat">
-                <img src="/static/img/new-chat-icon.svg" alt="New Chat" class="sidebar-icon">
+                <img src="{{ url_for('static', filename='img/new-chat-icon.svg') }}" alt="New Chat" class="sidebar-icon">
                 <span>New Chat</span>
             </div>
             <div class="chat-history">
@@ -59,7 +59,7 @@
             </div>
             <div class="user-profile">
                 <div class="user-info" style="cursor: pointer;">
-                    <img src="/static/img/user-icon.svg" alt="User" class="sidebar-icon">
+                    <img src="{{ url_for('static', filename='img/user-icon.svg') }}" alt="User" class="sidebar-icon">
                     <span id="user-name">User</span>
                 </div>
                 <button id="logout-btn" class="logout-btn">
@@ -70,7 +70,7 @@
             
             <div class="chat-section">
                 <div class="mobile-toggle">
-                    <img src="/static/img/sidebar-icon.svg" alt="">
+                    <img src="{{ url_for('static', filename='img/sidebar-icon.svg') }}" alt="">
                 </div>
                 <div class="messages-container">
                     <div class="messages" id="messages">
@@ -85,10 +85,10 @@
                 <div class="input-container">
                     <textarea id="user-input" placeholder="Ask me anything..."></textarea>
                     <button class="stop-btn" style="display: none;">
-                        <img src="/static/img/stop-icon.svg" alt="Stop Response">
+                        <img src="{{ url_for('static', filename='img/stop-icon.svg') }}" alt="Stop Response">
                     </button>
                     <button class="send-btn">
-                        <img src="/static/img/arrow-icon.svg" alt="Send Message">
+                        <img src="{{ url_for('static', filename='img/arrow-icon.svg') }}" alt="Send Message">
                     </button>
                 </div>
             </div>
@@ -226,11 +226,11 @@
         </div>
     </div>
     
-    <script src="/static/js/emojis.js"></script>
-    <script src="/static/js/auth.js"></script>
-    <script src="/static/js/firebase-chat.js"></script>
-    <script src="/static/js/main.js"></script>
-    <script src="/static/js/settings.js"></script>
+    <script src="{{ url_for('static', filename='js/emojis.js') }}"></script>
+<script src="{{ url_for('static', filename='js/auth.js') }}"></script>
+<script src="{{ url_for('static', filename='js/firebase-chat.js') }}"></script>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script src="{{ url_for('static', filename='js/settings.js') }}"></script>
     
     <script>
         // Logout functionality
