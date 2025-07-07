@@ -10,6 +10,8 @@ const sidebar = document.querySelector('.sidebar');
 const sidebarToggle = document.querySelector('.sidebar-toggle');
 const mobileToggle = document.querySelector('.mobile-toggle');
 const stopBtn = document.querySelector('.stop-btn');
+const messagesContainer = document.querySelector('.messages-container');
+const inputContainer = document.querySelector('.input-container');
 
 // Function to toggle sidebar
 function toggleSidebar() {
@@ -65,6 +67,50 @@ window.addEventListener('offline', checkOnlineStatus);
 
 // Check online status on page load
 checkOnlineStatus();
+
+// Mobile viewport height adjustment for virtual keyboard
+function adjustViewportForMobile() {
+    // Only apply these adjustments on mobile devices
+    if (window.innerWidth <= 768) {
+        // Set initial viewport height as a CSS variable
+        const vh = window.innerHeight * 0.01;
+        document.documentElement.style.setProperty('--vh', `${vh}px`);
+        
+        // Update on resize
+        window.addEventListener('resize', () => {
+            // Update the viewport height variable
+            const vh = window.innerHeight * 0.01;
+            document.documentElement.style.setProperty('--vh', `${vh}px`);
+        });
+        
+        // Handle input focus (keyboard appears)
+        if (userInput) {
+            userInput.addEventListener('focus', () => {
+                // Add a small delay to allow the keyboard to fully appear
+                setTimeout(() => {
+                    // Scroll to the input field
+                    userInput.scrollIntoView({ behavior: 'smooth' });
+                    
+                    // Ensure messages container has enough bottom padding
+                    if (messagesContainer) {
+                        messagesContainer.style.paddingBottom = '150px';
+                    }
+                }, 300);
+            });
+            
+            // Handle input blur (keyboard disappears)
+            userInput.addEventListener('blur', () => {
+                // Reset padding when keyboard is hidden
+                if (messagesContainer) {
+                    messagesContainer.style.paddingBottom = '100px';
+                }
+            });
+        }
+    }
+}
+
+// Call the function on page load
+document.addEventListener('DOMContentLoaded', adjustViewportForMobile);
 
 // Initialize chat history array to store all messages
 let chatHistory = [
