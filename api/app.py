@@ -439,16 +439,73 @@ def chat():
                 "Content-Type": "application/json"
             }
             # Use chat history if available, otherwise use just the current message
-            messages = chat_history if chat_history else [
-                {
-                    "role": "system",
-                    "content": "You are NumAI, a helpful assistant . When a user says only 'hello', respond with just 'Hello! How can I help you today?' and nothing more. For all other queries, respond normally with appropriate markdown formatting: **bold text** for titles, backticks for code, and proper code blocks with language specification. You can use emoji shortcodes like :smile:, :thinking:, :idea:, :code:, :warning:, :check:, :star:, :heart:, :info:, and :rocket: in your responses. When providing code examples, make it clear these are standalone examples."
-                },
-                {
-                    "role": "user",
-                    "content": user_input
-                }
-            ]
+            if chat_history:
+                # Validate chat history format for Groq API
+                print(f"[Groq] Validating chat history format")
+                validated_messages = []
+                for i, msg in enumerate(chat_history):
+                    # Check if message has 'role' property
+                    if 'role' not in msg:
+                        print(f"[Groq] Warning: Message at index {i} missing 'role' property, adding default 'user' role")
+                        msg['role'] = 'user'  # Default to user role if missing
+                    
+                    # Check if message has 'content' property
+                    if 'content' not in msg:
+                        print(f"[Groq] Warning: Message at index {i} missing 'content' property, skipping")
+                        continue
+                    
+                    # Ensure role is one of the allowed values
+                    if msg['role'] not in ['system', 'user', 'assistant']:
+                        print(f"[Groq] Warning: Message at index {i} has invalid role '{msg['role']}', changing to 'user'")
+                        msg['role'] = 'user'
+                    
+                    validated_messages.append(msg)
+                
+                # Ensure we have at least one message
+                if not validated_messages:
+                    print(f"[Groq] Warning: No valid messages in chat history, using default")
+                    messages = [
+                        {
+                            "role": "system",
+                            "content": "You are NumAI, a helpful assistant . When a user says only 'hello', respond with just 'Hello! How can I help you today?' and nothing more. For all other queries, respond normally with appropriate markdown formatting: **bold text** for titles, backticks for code, and proper code blocks with language specification. You can use emoji shortcodes like :smile:, :thinking:, :idea:, :code:, :warning:, :check:, :star:, :heart:, :info:, and :rocket: in your responses. When providing code examples, make it clear these are standalone examples."
+                        },
+                        {
+                            "role": "user",
+                            "content": user_input
+                        }
+                    ]
+                else:
+                    # Check if we have a system message, add one if not
+                    has_system_message = any(msg['role'] == 'system' for msg in validated_messages)
+                    if not has_system_message:
+                        print(f"[Groq] Adding default system message")
+                        validated_messages.insert(0, {
+                            "role": "system",
+                            "content": "You are NumAI, a helpful assistant . When a user says only 'hello', respond with just 'Hello! How can I help you today?' and nothing more. For all other queries, respond normally with appropriate markdown formatting: **bold text** for titles, backticks for code, and proper code blocks with language specification. You can use emoji shortcodes like :smile:, :thinking:, :idea:, :code:, :warning:, :check:, :star:, :heart:, :info:, and :rocket: in your responses. When providing code examples, make it clear these are standalone examples."
+                        })
+                    
+                    # Ensure the last message is from the user
+                    if validated_messages[-1]['role'] != 'user':
+                        print(f"[Groq] Adding current user input as the last message")
+                        validated_messages.append({
+                            "role": "user",
+                            "content": user_input
+                        })
+                    
+                    messages = validated_messages
+                    print(f"[Groq] Validated chat history: {len(messages)} messages")
+            else:
+                # No chat history, use default messages
+                messages = [
+                    {
+                        "role": "system",
+                        "content": "You are NumAI, a helpful assistant . When a user says only 'hello', respond with just 'Hello! How can I help you today?' and nothing more. For all other queries, respond normally with appropriate markdown formatting: **bold text** for titles, backticks for code, and proper code blocks with language specification. You can use emoji shortcodes like :smile:, :thinking:, :idea:, :code:, :warning:, :check:, :star:, :heart:, :info:, and :rocket: in your responses. When providing code examples, make it clear these are standalone examples."
+                    },
+                    {
+                        "role": "user",
+                        "content": user_input
+                    }
+                ]
             
             groq_data = json.dumps({
                 "model": selected_model_info['id'],
@@ -519,16 +576,73 @@ def chat():
                 "Content-Type": "application/json"
             }
             # Use chat history if available, otherwise use just the current message
-            messages = chat_history if chat_history else [
-                {
-                    "role": "system",
-                    "content": "You are NumAI, a helpful assistant . When a user says only 'hello', respond with just 'Hello! How can I help you today?' and nothing more. For all other queries, respond normally with appropriate markdown formatting: **bold text** for titles, backticks for code, and proper code blocks with language specification. You can use emoji shortcodes like :smile:, :thinking:, :idea:, :code:, :warning:, :check:, :star:, :heart:, :info:, and :rocket: in your responses. When providing code examples, make it clear these are standalone examples."
-                },
-                {
-                    "role": "user",
-                    "content": user_input
-                }
-            ]
+            if chat_history:
+                # Validate chat history format for Groq API
+                print(f"[Groq] Validating chat history format")
+                validated_messages = []
+                for i, msg in enumerate(chat_history):
+                    # Check if message has 'role' property
+                    if 'role' not in msg:
+                        print(f"[Groq] Warning: Message at index {i} missing 'role' property, adding default 'user' role")
+                        msg['role'] = 'user'  # Default to user role if missing
+                    
+                    # Check if message has 'content' property
+                    if 'content' not in msg:
+                        print(f"[Groq] Warning: Message at index {i} missing 'content' property, skipping")
+                        continue
+                    
+                    # Ensure role is one of the allowed values
+                    if msg['role'] not in ['system', 'user', 'assistant']:
+                        print(f"[Groq] Warning: Message at index {i} has invalid role '{msg['role']}', changing to 'user'")
+                        msg['role'] = 'user'
+                    
+                    validated_messages.append(msg)
+                
+                # Ensure we have at least one message
+                if not validated_messages:
+                    print(f"[Groq] Warning: No valid messages in chat history, using default")
+                    messages = [
+                        {
+                            "role": "system",
+                            "content": "You are NumAI, a helpful assistant . When a user says only 'hello', respond with just 'Hello! How can I help you today?' and nothing more. For all other queries, respond normally with appropriate markdown formatting: **bold text** for titles, backticks for code, and proper code blocks with language specification. You can use emoji shortcodes like :smile:, :thinking:, :idea:, :code:, :warning:, :check:, :star:, :heart:, :info:, and :rocket: in your responses. When providing code examples, make it clear these are standalone examples."
+                        },
+                        {
+                            "role": "user",
+                            "content": user_input
+                        }
+                    ]
+                else:
+                    # Check if we have a system message, add one if not
+                    has_system_message = any(msg['role'] == 'system' for msg in validated_messages)
+                    if not has_system_message:
+                        print(f"[Groq] Adding default system message")
+                        validated_messages.insert(0, {
+                            "role": "system",
+                            "content": "You are NumAI, a helpful assistant . When a user says only 'hello', respond with just 'Hello! How can I help you today?' and nothing more. For all other queries, respond normally with appropriate markdown formatting: **bold text** for titles, backticks for code, and proper code blocks with language specification. You can use emoji shortcodes like :smile:, :thinking:, :idea:, :code:, :warning:, :check:, :star:, :heart:, :info:, and :rocket: in your responses. When providing code examples, make it clear these are standalone examples."
+                        })
+                    
+                    # Ensure the last message is from the user
+                    if validated_messages[-1]['role'] != 'user':
+                        print(f"[Groq] Adding current user input as the last message")
+                        validated_messages.append({
+                            "role": "user",
+                            "content": user_input
+                        })
+                    
+                    messages = validated_messages
+                    print(f"[Groq] Validated chat history: {len(messages)} messages")
+            else:
+                # No chat history, use default messages
+                messages = [
+                    {
+                        "role": "system",
+                        "content": "You are NumAI, a helpful assistant . When a user says only 'hello', respond with just 'Hello! How can I help you today?' and nothing more. For all other queries, respond normally with appropriate markdown formatting: **bold text** for titles, backticks for code, and proper code blocks with language specification. You can use emoji shortcodes like :smile:, :thinking:, :idea:, :code:, :warning:, :check:, :star:, :heart:, :info:, and :rocket: in your responses. When providing code examples, make it clear these are standalone examples."
+                    },
+                    {
+                        "role": "user",
+                        "content": user_input
+                    }
+                ]
             
             together_data = json.dumps({
                 "model": selected_model_info['id'],
@@ -567,15 +681,73 @@ def chat():
             # Convert chat history to Cohere format
             cohere_messages = []
             if chat_history:
-                for msg in chat_history:
-                    role = msg.get('role')
-                    content = msg.get('content', '')
-                    if role == 'user':
-                        cohere_messages.append({"role": "USER", "message": content})
-                    elif role == 'assistant':
-                        cohere_messages.append({"role": "CHATBOT", "message": content})
-                    elif role == 'system':
-                        cohere_messages.append({"role": "SYSTEM", "message": content})
+                # Validate chat history format for Cohere API
+                print(f"[Cohere] Validating chat history format")
+                validated_messages = []
+                for i, msg in enumerate(chat_history):
+                    # Check if message has 'role' property
+                    if 'role' not in msg:
+                        print(f"[Cohere] Warning: Message at index {i} missing 'role' property, adding default 'user' role")
+                        msg['role'] = 'user'  # Default to user role if missing
+                    
+                    # Check if message has 'content' property
+                    if 'content' not in msg:
+                        print(f"[Cohere] Warning: Message at index {i} missing 'content' property, skipping")
+                        continue
+                    
+                    # Ensure role is one of the allowed values
+                    if msg['role'] not in ['system', 'user', 'assistant']:
+                        print(f"[Cohere] Warning: Message at index {i} has invalid role '{msg['role']}', changing to 'user'")
+                        msg['role'] = 'user'
+                    
+                    validated_messages.append(msg)
+                
+                # Ensure we have at least one message
+                if not validated_messages:
+                    print(f"[Cohere] Warning: No valid messages in chat history, using default")
+                    # If no valid messages, create a new conversation with default messages
+                    cohere_messages = [
+                        {
+                            "role": "SYSTEM",
+                            "message": "You are NumAI, a helpful assistant . When a user says only 'hello', respond with just 'Hello! How can I help you today?' and nothing more. For all other queries, respond normally with appropriate markdown formatting: **bold text** for titles, backticks for code, and proper code blocks with language specification. You can use emoji shortcodes like :smile:, :thinking:, :idea:, :code:, :warning:, :check:, :star:, :heart:, :info:, and :rocket: in your responses. When providing code examples, make it clear these are standalone examples."
+                        },
+                        {
+                            "role": "USER",
+                            "message": user_input
+                        }
+                    ]
+                else:
+                    # Convert validated messages to Cohere format
+                    has_system_message = False
+                    for msg in validated_messages:
+                        role = msg.get('role')
+                        content = msg.get('content', '')
+                        
+                        if role == 'user':
+                            cohere_messages.append({"role": "USER", "message": content})
+                        elif role == 'assistant':
+                            cohere_messages.append({"role": "CHATBOT", "message": content})
+                        elif role == 'system':
+                            cohere_messages.append({"role": "SYSTEM", "message": content})
+                            has_system_message = True
+                    
+                    # Check if we have a system message, add one if not
+                    if not has_system_message:
+                        print(f"[Cohere] Adding default system message")
+                        cohere_messages.insert(0, {
+                            "role": "SYSTEM",
+                            "message": "You are NumAI, a helpful assistant . When a user says only 'hello', respond with just 'Hello! How can I help you today?' and nothing more. For all other queries, respond normally with appropriate markdown formatting: **bold text** for titles, backticks for code, and proper code blocks with language specification. You can use emoji shortcodes like :smile:, :thinking:, :idea:, :code:, :warning:, :check:, :star:, :heart:, :info:, and :rocket: in your responses. When providing code examples, make it clear these are standalone examples."
+                        })
+                    
+                    # Ensure the last message is from the user
+                    if cohere_messages and cohere_messages[-1]["role"] != "USER":
+                        print(f"[Cohere] Adding current user input as the last message")
+                        cohere_messages.append({
+                            "role": "USER",
+                            "message": user_input
+                        })
+                    
+                    print(f"[Cohere] Converted chat history to Cohere format: {len(cohere_messages)} messages")
             else:
                 # If no chat history, create a new conversation
                 cohere_messages = [
@@ -633,16 +805,73 @@ def chat():
                 
                 # Call OpenRouter API with the current model using our retry mechanism
                 # Use chat history if available, otherwise use just the current message
-                messages = chat_history if chat_history else [
-                    {
-                        "role": "system",
-                        "content": "You are NumAI, a helpful assistant . When a user says only 'hello', respond with just 'Hello! How can I help you today?' and nothing more. For all other queries, respond normally with appropriate markdown formatting: **bold text** for titles, backticks for code, and proper code blocks with language specification. You can use emoji shortcodes like :smile:, :thinking:, :idea:, :code:, :warning:, :check:, :star:, :heart:, :info:, and :rocket: in your responses. When providing code examples, make it clear these are standalone examples."
-                    },
-                    {
-                        "role": "user",
-                        "content": user_input
-                    }
-                ]
+                if chat_history:
+                    # Validate chat history format for OpenRouter API
+                    print(f"[OpenRouter] Validating chat history format for model {model}")
+                    validated_messages = []
+                    for i, msg in enumerate(chat_history):
+                        # Check if message has 'role' property
+                        if 'role' not in msg:
+                            print(f"[OpenRouter] Warning: Message at index {i} missing 'role' property, adding default 'user' role")
+                            msg['role'] = 'user'  # Default to user role if missing
+                        
+                        # Check if message has 'content' property
+                        if 'content' not in msg:
+                            print(f"[OpenRouter] Warning: Message at index {i} missing 'content' property, skipping")
+                            continue
+                        
+                        # Ensure role is one of the allowed values
+                        if msg['role'] not in ['system', 'user', 'assistant']:
+                            print(f"[OpenRouter] Warning: Message at index {i} has invalid role '{msg['role']}', changing to 'user'")
+                            msg['role'] = 'user'
+                        
+                        validated_messages.append(msg)
+                    
+                    # Ensure we have at least one message
+                    if not validated_messages:
+                        print(f"[OpenRouter] Warning: No valid messages in chat history, using default")
+                        messages = [
+                            {
+                                "role": "system",
+                                "content": "You are NumAI, a helpful assistant . When a user says only 'hello', respond with just 'Hello! How can I help you today?' and nothing more. For all other queries, respond normally with appropriate markdown formatting: **bold text** for titles, backticks for code, and proper code blocks with language specification. You can use emoji shortcodes like :smile:, :thinking:, :idea:, :code:, :warning:, :check:, :star:, :heart:, :info:, and :rocket: in your responses. When providing code examples, make it clear these are standalone examples."
+                            },
+                            {
+                                "role": "user",
+                                "content": user_input
+                            }
+                        ]
+                    else:
+                        # Check if we have a system message, add one if not
+                        has_system_message = any(msg['role'] == 'system' for msg in validated_messages)
+                        if not has_system_message:
+                            print(f"[OpenRouter] Adding default system message")
+                            validated_messages.insert(0, {
+                                "role": "system",
+                                "content": "You are NumAI, a helpful assistant . When a user says only 'hello', respond with just 'Hello! How can I help you today?' and nothing more. For all other queries, respond normally with appropriate markdown formatting: **bold text** for titles, backticks for code, and proper code blocks with language specification. You can use emoji shortcodes like :smile:, :thinking:, :idea:, :code:, :warning:, :check:, :star:, :heart:, :info:, and :rocket: in your responses. When providing code examples, make it clear these are standalone examples."
+                            })
+                        
+                        # Ensure the last message is from the user
+                        if validated_messages[-1]['role'] != 'user':
+                            print(f"[OpenRouter] Adding current user input as the last message")
+                            validated_messages.append({
+                                "role": "user",
+                                "content": user_input
+                            })
+                        
+                        messages = validated_messages
+                        print(f"[OpenRouter] Validated chat history: {len(messages)} messages")
+                else:
+                    # No chat history, use default messages
+                    messages = [
+                        {
+                            "role": "system",
+                            "content": "You are NumAI, a helpful assistant . When a user says only 'hello', respond with just 'Hello! How can I help you today?' and nothing more. For all other queries, respond normally with appropriate markdown formatting: **bold text** for titles, backticks for code, and proper code blocks with language specification. You can use emoji shortcodes like :smile:, :thinking:, :idea:, :code:, :warning:, :check:, :star:, :heart:, :info:, and :rocket: in your responses. When providing code examples, make it clear these are standalone examples."
+                        },
+                        {
+                            "role": "user",
+                            "content": user_input
+                        }
+                    ]
                 
                 request_data = json.dumps({
                     "model": model,

@@ -1265,7 +1265,7 @@ h3.content-title {
     padding: 1.7rem 0.75rem 1.7rem 1.2rem;
     position: relative;
     min-height: 56px;
-    max-height: 10rem; /* Allow unlimited height */
+    max-height: 13rem; /* Allow unlimited height */
     overflow-wrap: break-word; /* Break words to prevent horizontal overflow */
 }
 
@@ -1283,7 +1283,7 @@ h3.content-title {
     font-size: 1.1rem;
     padding: 0.7rem 0.5rem 0.7rem 0;
     min-height: 32px;
-    max-height: none; /* Allow unlimited height */
+    max-height: 10rem; /* Allow unlimited height */
     resize: none;
     width: 100%;
     box-shadow: none;
@@ -1622,13 +1622,16 @@ body.offline .message-input-container::after {
 }
 
 @media (max-width: 768px) {
+    body {
+        overflow: hidden; /* Prevent body scrolling */
+    }
     .sidebar {
         transform: translateX(-100%);
         position: fixed;
         top: 0;
         left: 0;
         z-index: 100;
-        height: 100%;
+        height: 100vh;
         width: 280px;
         box-shadow: 2px 0 10px rgba(0, 0, 0, 0.2);
     }
@@ -1644,6 +1647,20 @@ body.offline .message-input-container::after {
     .chat-section {
         padding-left: 0;
         padding-top: 70px;
+        height: 100vh;
+        width: 100%;
+        position: fixed;
+        top: 0;
+        left: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .messages-container {
+        flex: 1;
+        overflow-y: auto;
+        padding-bottom: 80px; /* Make room for the fixed input container */
     }
     
     .mobile-toggle {
@@ -1652,20 +1669,30 @@ body.offline .message-input-container::after {
         top: 15px;
         left: 15px;
         z-index: 99;
+        background-color: var(--bg-color);
+        border-radius: 50%;
+        padding: 8px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
     }
     .mobile-toggle{
         width: 26px;
         height: 26px;
-        stroke: #121212;
-        color: #121212;
+        stroke: var(--text-color);
+        color: var(--text-color);
     }
     .input-container {
-        padding: 1rem 0.5rem;
+        padding: 0.5rem;
         width: 100%;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        background-color: var(--bg-color);
+        z-index: 50;
     }
     .user-input-wrapper.modern {
         max-width: 100%;
         padding: 0.15rem 0.5rem 0.15rem 0.7rem;
+        margin: 0 auto;
     }
     .input-actions {
         right: 0.3rem;
@@ -1675,7 +1702,10 @@ body.offline .message-input-container::after {
         padding: 0.5rem 0.2rem 0.5rem 0;
     }
     .model-switcher-popup{
-        left: 13rem;
+        left: 50%;
+        transform: translateX(-50%);
+        bottom: 90px;
+        top: auto;
     }
 }
 
@@ -1697,33 +1727,46 @@ body.offline .message-input-container::after {
     }
     
     .input-container {
-        padding: 12px;
-        gap: 0.7rem;
+        padding: 10px;
+        gap: 0.5rem;
         position: fixed;
         bottom: 0;
-        /* width: 100%; */
+        width: 100%;
+        left: 0;
+        background-color: var(--bg-color);
+        z-index: 50;
+        box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
     }
+    
     .user{padding: 0;}    
+    
+    .user-input-wrapper.modern {
+        width: 100%;
+        max-width: 100%;
+        margin: 0;
+    }
+    
     #user-input {
-        padding: 0.9rem 1rem;
+        padding: 0.7rem 0.8rem;
         border-radius: 12px;
         font-size: 14px;
         width: 100%;
-        min-height: 60px;
-        resize: vertical;
+        min-height: 50px;
+        max-height: 120px;
+        resize: none;
         position: relative;
         padding-right: 40px; /* Make room for the model switch button */
     }
     
     .send-btn, .stop-btn {
-        width: 42px;
-        height: 42px;
+        width: 38px;
+        height: 38px;
     }
     
     .send-btn img, .stop-btn img {
-    width: 20px;
-    height: 20px;
-}
+        width: 18px;
+        height: 18px;
+    }
 
 .send-icon {
     stroke: white; /* For dark theme */
