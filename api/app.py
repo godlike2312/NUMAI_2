@@ -510,12 +510,6 @@ def chat():
         # Handle Together AI models
         if provider == 'together':
             print(f"[Together] Preparing to send request to Together AI for model: {selected_model_info['id']}")
-            
-            # Check if Together API key is available
-            if not TOGETHER_API_KEY:
-                print("[Together] Error: No API key available. Please set TOGETHER_API_KEY environment variable.")
-                return jsonify({'error': 'Together API key not configured. Please set TOGETHER_API_KEY environment variable.'}), 500
-                
             together_headers = {
                 "Authorization": f"Bearer {TOGETHER_API_KEY}",
                 "Content-Type": "application/json"
@@ -542,36 +536,12 @@ def chat():
                     url="https://api.together.xyz/v1/chat/completions",
                     headers=together_headers,
                     data=together_data,
-                    timeout=30  # Increased timeout for more reliable response
+                    timeout=20
                 )
                 print(f"[Together] Received response status: {together_response.status_code}")
-                
-                # Check for error status codes
-                if together_response.status_code != 200:
-                    error_message = f"Together API returned error status: {together_response.status_code}"
-                    try:
-                        error_data = together_response.json()
-                        if 'error' in error_data:
-                            error_message += f". {error_data['error'].get('message', '')}"
-                    except:
-                        error_message += f". Response: {together_response.text}"
-                    
-                    print(f"[Together] {error_message}")
-                    return jsonify({'error': error_message}), together_response.status_code
-                
                 print(f"[Together] Raw response: {together_response.text}")
                 together_result = together_response.json()
-                
-                # Validate response structure
-                if 'choices' not in together_result or not together_result['choices']:
-                    print("[Together] Invalid response format: 'choices' field missing or empty")
-                    return jsonify({'error': 'Invalid response from Together API'}), 500
-                    
                 assistant_message = together_result.get('choices', [{}])[0].get('message', {}).get('content', '')
-                if not assistant_message:
-                    print("[Together] Empty response content from Together API")
-                    return jsonify({'error': 'Empty response from Together API'}), 500
-                    
                 print(f"[Together] Assistant message: {assistant_message}")
                 return jsonify({
                     'response': assistant_message,
@@ -579,29 +549,13 @@ def chat():
                     'model_key': selected_model_key,
                     'model_display_name': selected_model_info['display_name']
                 })
-            except requests.exceptions.Timeout:
-                print("[Together] Request timed out")
-                return jsonify({'error': 'Together API request timed out. Please try again.'}), 504
-            except requests.exceptions.ConnectionError:
-                print("[Together] Connection error")
-                return jsonify({'error': 'Could not connect to Together API. Please check your network connection.'}), 503
-            except json.JSONDecodeError:
-                print(f"[Together] Invalid JSON response: {together_response.text if 'together_response' in locals() else 'No response'}")
-                return jsonify({'error': 'Invalid response from Together API'}), 500
             except Exception as e:
                 print(f"[Together] Exception occurred: {e}")
-                traceback.print_exc()  # Print full traceback for debugging
                 return jsonify({'error': f'Together AI error: {str(e)}'}), 500
                 
         # Handle Cohere models
         if provider == 'cohere':
             print(f"[Cohere] Preparing to send request to Cohere API for model: {selected_model_info['id']}")
-            
-            # Check if Cohere API key is available
-            if not COHERE_API_KEY:
-                print("[Cohere] Error: No API key available. Please set COHERE_API_KEY environment variable.")
-                return jsonify({'error': 'Cohere API key not configured. Please set COHERE_API_KEY environment variable.'}), 500
-                
             cohere_headers = {
                 "Authorization": f"Bearer {COHERE_API_KEY}",
                 "Content-Type": "application/json"
@@ -643,36 +597,12 @@ def chat():
                     url="https://api.cohere.ai/v1/chat",
                     headers=cohere_headers,
                     data=cohere_data,
-                    timeout=30  # Increased timeout for more reliable response
+                    timeout=20
                 )
                 print(f"[Cohere] Received response status: {cohere_response.status_code}")
-                
-                # Check for error status codes
-                if cohere_response.status_code != 200:
-                    error_message = f"Cohere API returned error status: {cohere_response.status_code}"
-                    try:
-                        error_data = cohere_response.json()
-                        if 'message' in error_data:
-                            error_message += f". {error_data['message']}"
-                    except:
-                        error_message += f". Response: {cohere_response.text}"
-                    
-                    print(f"[Cohere] {error_message}")
-                    return jsonify({'error': error_message}), cohere_response.status_code
-                
                 print(f"[Cohere] Raw response: {cohere_response.text}")
                 cohere_result = cohere_response.json()
-                
-                # Validate response structure - Cohere uses 'text' instead of 'choices'
-                if 'text' not in cohere_result:
-                    print("[Cohere] Invalid response format: 'text' field missing")
-                    return jsonify({'error': 'Invalid response from Cohere API'}), 500
-                    
                 assistant_message = cohere_result.get('text', '')
-                if not assistant_message:
-                    print("[Cohere] Empty response content from Cohere API")
-                    return jsonify({'error': 'Empty response from Cohere API'}), 500
-                    
                 print(f"[Cohere] Assistant message: {assistant_message}")
                 return jsonify({
                     'response': assistant_message,
@@ -680,18 +610,8 @@ def chat():
                     'model_key': selected_model_key,
                     'model_display_name': selected_model_info['display_name']
                 })
-            except requests.exceptions.Timeout:
-                print("[Cohere] Request timed out")
-                return jsonify({'error': 'Cohere API request timed out. Please try again.'}), 504
-            except requests.exceptions.ConnectionError:
-                print("[Cohere] Connection error")
-                return jsonify({'error': 'Could not connect to Cohere API. Please check your network connection.'}), 503
-            except json.JSONDecodeError:
-                print(f"[Cohere] Invalid JSON response: {cohere_response.text if 'cohere_response' in locals() else 'No response'}")
-                return jsonify({'error': 'Invalid response from Cohere API'}), 500
             except Exception as e:
                 print(f"[Cohere] Exception occurred: {e}")
-                traceback.print_exc()  # Print full traceback for debugging
                 return jsonify({'error': f'Cohere API error: {str(e)}'}), 500
 
         # Try the selected model first, then fall back to others if it fails
@@ -765,39 +685,125 @@ def chat():
                         model_key = key
                         break
                 
-                selected_model_info = MODEL_OPTIONS[selected_model_key]
-                provider = selected_model_info.get('provider', 'openrouter')
-
-                if provider == 'groq':
+                # Get the provider of the model that actually succeeded
+                actual_provider = model_info.get('provider', 'openrouter') if model_info else 'openrouter'
+                print(f"Successful response came from provider: {actual_provider}")
+                
+                # Only use provider-specific APIs if the selected model was actually used
+                # This prevents using Groq API after already getting a successful response from another model
+                if model == selected_model_info['id'] and actual_provider == 'groq':
                     # Route to Groq API
+                    if not GROQ_API_KEY:
+                        print("[Groq] Error: No API key available. Please set GROQ_API_KEY environment variable.")
+                        return jsonify({'error': 'Groq API key not configured. Please set GROQ_API_KEY environment variable.'}), 500
+                        
                     groq_headers = {
                         "Authorization": f"Bearer {GROQ_API_KEY}",
                         "Content-Type": "application/json"
                     }
-                    # Use chat history if available, otherwise use just the current message
-                    messages = chat_history if chat_history else [
-                        {
-                            "role": "system",
-                            "content": "You are NumAI, a helpful assistant . When a user says only 'hello', respond with just 'Hello! How can I help you today?' and nothing more. For all other queries, respond normally with appropriate markdown formatting: **bold text** for titles, backticks for code, and proper code blocks with language specification. You can use emoji shortcodes like :smile:, :thinking:, :idea:, :code:, :warning:, :check:, :star:, :heart:, :info:, and :rocket: in your responses. When providing code examples, make it clear these are standalone examples."
-                        },
-                        {
-                            "role": "user",
-                            "content": user_input
-                        }
-                    ]
+                    
+                    # Validate chat history to ensure each message has a valid role
+                    valid_messages = []
+                    default_system_message = {
+                        "role": "system",
+                        "content": "You are NumAI, a helpful assistant . When a user says only 'hello', respond with just 'Hello! How can I help you today?' and nothing more. For all other queries, respond normally with appropriate markdown formatting: **bold text** for titles, backticks for code, and proper code blocks with language specification. You can use emoji shortcodes like :smile:, :thinking:, :idea:, :code:, :warning:, :check:, :star:, :heart:, :info:, and :rocket: in your responses. When providing code examples, make it clear these are standalone examples."
+                    }
+                    
+                    if chat_history:
+                        # Add system message if not present
+                        has_system = any(msg.get('role') == 'system' for msg in chat_history if isinstance(msg, dict) and 'role' in msg)
+                        if not has_system:
+                            valid_messages.append(default_system_message)
+                            
+                        # Validate each message in chat history
+                        for msg in chat_history:
+                            if not isinstance(msg, dict):
+                                print(f"[Groq] Warning: Invalid message format in chat history: {msg}")
+                                continue
+                                
+                            if 'role' not in msg:
+                                print(f"[Groq] Warning: Message missing 'role' field: {msg}")
+                                continue
+                                
+                            if msg['role'] not in ['system', 'user', 'assistant']:
+                                print(f"[Groq] Warning: Invalid role '{msg['role']}' in message: {msg}")
+                                continue
+                                
+                            if 'content' not in msg or not msg['content']:
+                                print(f"[Groq] Warning: Message missing 'content' field: {msg}")
+                                continue
+                                
+                            valid_messages.append(msg)
+                            
+                        # Ensure the last message is from the user
+                        if not valid_messages or valid_messages[-1].get('role') != 'user':
+                            valid_messages.append({
+                                "role": "user",
+                                "content": user_input
+                            })
+                    else:
+                        # If no chat history, create a new conversation
+                        valid_messages = [
+                            default_system_message,
+                            {
+                                "role": "user",
+                                "content": user_input
+                            }
+                        ]
+                    
+                    print(f"[Groq] Using validated messages: {json.dumps(valid_messages)}")
                     
                     groq_data = json.dumps({
                         "model": selected_model_info['id'],
-                        "messages": messages
+                        "messages": valid_messages
                     })
-                    groq_response = requests.post(
-                        url="https://api.groq.com/openai/v1/chat/completions",
-                        headers=groq_headers,
-                        data=groq_data,
-                        timeout=60
-                    )
-                    groq_result = groq_response.json()
-                    assistant_message = groq_result.get('choices', [{}])[0].get('message', {}).get('content', '')
+                    
+                    try:
+                        print(f"[Groq] Sending request to Groq API with model: {selected_model_info['id']}")
+                        groq_response = requests.post(
+                            url="https://api.groq.com/openai/v1/chat/completions",
+                            headers=groq_headers,
+                            data=groq_data,
+                            timeout=60
+                        )
+                        
+                        # Check for error status codes
+                        if groq_response.status_code != 200:
+                            error_message = f"Groq API returned error status: {groq_response.status_code}"
+                            try:
+                                error_data = groq_response.json()
+                                if 'error' in error_data and 'message' in error_data['error']:
+                                    error_message += f". {error_data['error']['message']}"
+                            except:
+                                error_message += f". Response: {groq_response.text}"
+                            
+                            print(f"[Groq] {error_message}")
+                            return jsonify({'error': error_message}), groq_response.status_code
+                        
+                        groq_result = groq_response.json()
+                        
+                        # Validate response structure
+                        if 'choices' not in groq_result or not groq_result['choices']:
+                            print("[Groq] Invalid response format: 'choices' field missing or empty")
+                            return jsonify({'error': 'Invalid response from Groq API'}), 500
+                            
+                        assistant_message = groq_result.get('choices', [{}])[0].get('message', {}).get('content', '')
+                        if not assistant_message:
+                            print("[Groq] Empty response content from Groq API")
+                            return jsonify({'error': 'Empty response from Groq API'}), 500
+                    except requests.exceptions.Timeout:
+                        print("[Groq] Request timed out")
+                        return jsonify({'error': 'Groq API request timed out. Please try again.'}), 504
+                    except requests.exceptions.ConnectionError:
+                        print("[Groq] Connection error")
+                        return jsonify({'error': 'Could not connect to Groq API. Please check your network connection.'}), 503
+                    except json.JSONDecodeError:
+                        print(f"[Groq] Invalid JSON response: {groq_response.text if 'groq_response' in locals() else 'No response'}")
+                        return jsonify({'error': 'Invalid response from Groq API'}), 500
+                    except Exception as e:
+                        print(f"[Groq] Exception occurred: {e}")
+                        traceback.print_exc()  # Print full traceback for debugging
+                        return jsonify({'error': f'Groq API error: {str(e)}'}), 500
                     return jsonify({
                         'response': assistant_message,
                         'model_used': selected_model_info['id'],
