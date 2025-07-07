@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, redirect, url_for, session
+from flask import Flask, send_from_directory, render_template, request, jsonify, redirect, url_for, session
 import requests
 import json
 import os
@@ -339,7 +339,10 @@ def verify_firebase_token(request_obj):
             # Create a mock decoded token with a user ID
             return {"uid": "test-user-id"}
         return None
-
+    
+@app.route('/google66355884502dc3a5.html')
+def google_verify():
+    return send_from_directory(app.static_folder, 'google66355884502dc3a5.html')
 # Route for the login page
 @app.route('/login')
 def login():
@@ -359,6 +362,7 @@ def reset_password():
 @app.route('/status')
 def status():
     return render_template('status.html')
+    
 
 # Protected home route - redirects to login if not authenticated
 # The actual authentication check is handled by Firebase in the frontend
